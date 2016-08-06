@@ -328,14 +328,14 @@ func (pc *pooledConnection) Close() error {
 	}
 	pc.c = errorConnection{errConnClosed}
 
-	if pc.state&internal.MultiState != 0 {
+	if pc.state&private.MultiState != 0 {
 		c.Send("DISCARD")
-		pc.state &^= (internal.MultiState | internal.WatchState)
-	} else if pc.state&internal.WatchState != 0 {
+		pc.state &^= (private.MultiState | private.WatchState)
+	} else if pc.state&private.WatchState != 0 {
 		c.Send("UNWATCH")
-		pc.state &^= internal.WatchState
+		pc.state &^= private.WatchState
 	}
-	if pc.state&internal.SubscribeState != 0 {
+	if pc.state&private.SubscribeState != 0 {
 		c.Send("UNSUBSCRIBE")
 		c.Send("PUNSUBSCRIBE")
 		// To detect the end of the message stream, ask the server to echo
@@ -349,7 +349,7 @@ func (pc *pooledConnection) Close() error {
 				break
 			}
 			if p, ok := p.([]byte); ok && bytes.Equal(p, sentinel) {
-				pc.state &^= internal.SubscribeState
+				pc.state &^= private.SubscribeState
 				break
 			}
 		}
@@ -364,13 +364,13 @@ func (pc *pooledConnection) Err() error {
 }
 
 func (pc *pooledConnection) Do(commandName string, args ...interface{}) (reply interface{}, err error) {
-	ci := internal.LookupCommandInfo(commandName)
+	ci := private.LookupCommandInfo(commandName)
 	pc.state = (pc.state | ci.Set) &^ ci.Clear
 	return pc.c.Do(commandName, args...)
 }
 
 func (pc *pooledConnection) Send(commandName string, args ...interface{}) error {
-	ci := internal.LookupCommandInfo(commandName)
+	ci := private.LookupCommandInfo(commandName)
 	pc.state = (pc.state | ci.Set) &^ ci.Clear
 	return pc.c.Send(commandName, args...)
 }

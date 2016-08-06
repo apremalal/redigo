@@ -18,8 +18,8 @@ import (
 	"errors"
 	"sync"
 
-	"github.com/garyburd/redigo/private"
-	"github.com/garyburd/redigo/redis"
+	"github.com/apremalal/redigo/private"
+	"github.com/apremalal/redigo/redis"
 )
 
 // ConnMux multiplexes one or more connections to a single underlying
@@ -60,7 +60,7 @@ type muxConn struct {
 }
 
 func (c *muxConn) send(flush bool, cmd string, args ...interface{}) error {
-	if internal.LookupCommandInfo(cmd).Set != 0 {
+	if private.LookupCommandInfo(cmd).Set != 0 {
 		return errors.New("command not supported by mux pool")
 	}
 	p := c.p
