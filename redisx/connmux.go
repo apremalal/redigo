@@ -18,7 +18,7 @@ import (
 	"errors"
 	"sync"
 
-	"github.com/garyburd/redigo/internal"
+	"github.com/garyburd/redigo/private"
 	"github.com/garyburd/redigo/redis"
 )
 
